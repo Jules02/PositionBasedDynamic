@@ -1,15 +1,15 @@
 #ifndef CIRCLE_H
 #define CIRCLE_H
 
+#include "Vec2.h"
+
 struct Circle
 {
-    int x;
-    int y;
-    int width;
-    int height;
+    Vec2 pos;
+    float radius;
 
-    Circle(int _x, int _y, int _width, int _height)
-        : x(_x), y(_y), width(_width), height(_height) {}
+    Circle(Vec2 _pos, float _radius)
+        : pos(_pos), radius(_radius) {}
 };
 
 #endif // CIRCLE_H
