@@ -26,6 +26,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         drawarea.h drawarea.cpp
         circle.h
+        Vec2.h
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET PositionBasedDynamic APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
