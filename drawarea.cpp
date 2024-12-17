@@ -1,5 +1,6 @@
 #include "drawarea.h"
 #include "circle.h"
+#include "Vec2.h"
 #include <QPainter>
 #include <QMouseEvent>
 #include <vector>
@@ -12,13 +13,16 @@ DrawArea::DrawArea(QWidget *parent)
 void DrawArea::paintEvent(QPaintEvent *event) {}
 
 void DrawArea::mouseDoubleClickEvent(QMouseEvent *event) {
-    int x = event->position().x();
-    int y = event->position().y();
+    float x = event->position().x();
+    float y = event->position().y();
 
-    Circle circle(x-30/2, y-30/2, 30, 30);     // -30/2 correction for drawing right under the cursor tip
+    float radius = 15;
+    Vec2 pos {{x-radius, y-radius}};   // -radius correction for drawing right under the cursor tip
+
+    Circle circle(pos, radius);
     this->circles.push_back(circle);
     QPainter p(this);
-    QRectF target(circle.x, circle.y, circle.width, circle.height);
+    QRectF target(circle.pos[0], circle.pos[1], circle.radius*2, circle.radius*2);
     p.setPen(Qt::green);
     p.setBrush(QBrush(Qt::red));
     p.drawEllipse(target);
@@ -34,10 +38,12 @@ void DrawArea::animate() {
         p.fillRect(this->rect(), Qt::black);    // clear canva by painting the entire background
 
         for (Circle& circle: this->circles) {
-            if (circle.y < 300 - circle.height) {
-                circle.y += 1;
+            if (circle.pos[1] < 300 - circle.radius*2) {
+                // TODO: use circle.pos[1]+= 1 instead
+                Vec2 dy {{0, 1}};
+                circle.pos = circle.pos + dy;
             }
-            QRectF target(circle.x,circle.y, circle.width, circle.height);
+            QRectF target(circle.pos[0],circle.pos[1], circle.radius*2, circle.radius*2);
             p.setPen(Qt::green);
             p.setBrush(QBrush(Qt::red));
             p.drawEllipse(target);
