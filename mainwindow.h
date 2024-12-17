@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
+#include "drawarea.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -16,8 +18,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+private slots:
+    void HelloWorld();
 private:
     Ui::MainWindow *ui;
+    DrawArea *draw_area;
 };
 #endif // MAINWINDOW_H
