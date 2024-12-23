@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto timer = new QTimer();
     QObject::connect(timer, &QTimer::timeout, draw_area, &DrawArea::animate);
-    timer->start(50);
+    timer->start(1);
 
 
     QObject::connect(ui->start_button, &QPushButton::clicked, this, &MainWindow::HelloWorld);
