@@ -8,7 +8,9 @@ class Context
 public:
     Context();
     std::vector<Particle> circles;
+    bool isGravityOn;
 
+    void updatePhysicalSystem(float dt);
 };
 
 #endif // CONTEXT_H

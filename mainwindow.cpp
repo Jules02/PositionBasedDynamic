@@ -28,11 +28,11 @@ MainWindow::~MainWindow()
 void MainWindow::HelloWorld()
 {
 
-    if (this->draw_area->isGravityOn) {
-        this->draw_area->isGravityOn = false;
+    if (this->draw_area->context.isGravityOn) {
+        this->draw_area->context.isGravityOn = false;
         ui->start_button->setText("Activate Gravity");
     } else {
-        this->draw_area->isGravityOn = true;
+        this->draw_area->context.isGravityOn = true;
         ui->start_button->setText("Deactivate Gravity");
     }
 

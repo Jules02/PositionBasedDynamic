@@ -11,10 +11,12 @@ public:
     DrawArea(int width, int height, QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+    Context context;
+    void renderContext(QPainter *painter, QPaintEvent *event);
+
     Vec2 worldToView(Vec2 world_pos);
     Vec2 viewToWorld(Vec2 view_pos);
-
-    bool isGravityOn;
 
 public slots:
     void animate();
@@ -22,7 +24,6 @@ public slots:
 private:
     int width;
     int height;
-    Context context;
 };
 
 #endif // DRAWAREA_H
