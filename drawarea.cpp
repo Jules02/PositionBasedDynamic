@@ -1,5 +1,5 @@
 #include "drawarea.h"
-#include "circle.h"
+#include "particle.h"
 #include "Vec2.h"
 #include <QPainter>
 #include <QMouseEvent>
@@ -17,9 +17,10 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent *event) {
     float y = event->position().y();
 
     float radius = 15;
-    Vec2 pos {{x-radius, y-radius}};   // -radius correction for drawing right under the cursor tip
+    Vec2 pos {{ x-radius, y-radius }};   // -radius correction for drawing right under the cursor tip
+    Vec2 vel {{ 0.0, 0.0 }};
 
-    Circle circle(pos, radius);
+    Particle circle(pos, vel, radius, 0.0);
     this->circles.push_back(circle);
     QPainter p(this);
     QRectF target(circle.pos[0], circle.pos[1], circle.radius*2, circle.radius*2);
@@ -37,7 +38,7 @@ void DrawArea::animate() {
         QPainter p(this);
         p.fillRect(this->rect(), Qt::black);    // clear canva by painting the entire background
 
-        for (Circle& circle: this->circles) {
+        for (Particle& circle: this->circles) {
             if (circle.pos[1] < 300 - circle.radius*2) {
                 // TODO: use circle.pos[1]+= 1 instead
                 Vec2 dy {{0, 1}};

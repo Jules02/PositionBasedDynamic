@@ -2,7 +2,7 @@
 #define DRAWAREA_H
 
 #include <QOpenGLWidget>
-#include "circle.h"
+#include "particle.h"
 
 class DrawArea : public QOpenGLWidget
 {
@@ -17,7 +17,7 @@ public slots:
     void animate();
 
 private:
-    std::vector<Circle> circles;
+    std::vector<Particle> circles;
 };
 
 #endif // DRAWAREA_H

@@ -25,7 +25,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         drawarea.h drawarea.cpp
-        circle.h
+        particle.h
         Vec2.h
     )
 # Define target properties for Android with Qt 6 as:
