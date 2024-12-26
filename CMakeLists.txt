@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(PositionBasedDynamic VERSION 0.1 LANGUAGES CXX)
 
+enable_testing()
+
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -12,6 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS OpenGLWidgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -28,7 +31,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         particle.h
         Vec2.h
         context.h context.cpp
+        tst_testgui.cpp
+        collider.h collider.cpp
+        staticconstraint.h staticconstraint.cpp
+
+
     )
+    add_test(NAME PositionBasedDynamic COMMAND testgui)
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET PositionBasedDynamic APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
@@ -49,6 +58,7 @@ endif()
 
 target_link_libraries(PositionBasedDynamic PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(PositionBasedDynamic PRIVATE Qt${QT_VERSION_MAJOR}::OpenGLWidgets)
+target_link_libraries(PositionBasedDynamic PRIVATE Qt${QT_VERSION_MAJOR}::Test)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

@@ -9,6 +9,10 @@ DrawArea::DrawArea(int _width, int _height, QWidget *parent)
     : width(_width), height(_height), QOpenGLWidget{parent}
 {
     this->setFixedSize(this->width, this->height);
+
+    //Vec2 colliderPos{{0.0, 0.0}};
+    //Vec2 colliderNorm{{0.0, 1.0}};
+    //this->context.addCollider(std::make_unique<PlanCollider>(colliderPos, colliderNorm));
 }
 
 void DrawArea::paintEvent(QPaintEvent *event) {}
@@ -31,6 +35,7 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 void DrawArea::animate() {
+    this->context.addStaticContactConstraints();
     this->context.updatePhysicalSystem(30);
 
     QPainter p(this);                       // to be refactored
