@@ -38,7 +38,20 @@ private:
 class SphereCollider: public Collider
 {
 public:
+    SphereCollider(Vec2 _center, float _radius) : center(_center), radius(_radius) {}
 
+    std::optional<StaticConstraint> checkContact(const Particle& particle) const override {
+        // BUG: for the moment, sphere colliders are not implemented properly
+        float sdf = length(particle.pos - this->center);
+        if (sdf < this->radius + particle.radius) {
+            Vec2 normal_c = normalize(particle.pos - this->center);
+            return StaticConstraint{particle.pos - sdf*normal_c, normal_c, const_cast<Particle*>(&particle)};
+        }
+        return std::nullopt;
+    }
+
+    Vec2 center;
+    float radius;
 };
 
 #endif // COLLIDER_H

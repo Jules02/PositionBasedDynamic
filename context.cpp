@@ -6,6 +6,7 @@ Context::Context() {}
 void Context::addStaticContactConstraints() {
     activeConstraints.clear();
 
+    // Check for contact between each collider/particle pair
     for (auto& collider : colliders) {
         for (Particle& particle : circles) {
             auto constraint = collider->checkContact(particle);
