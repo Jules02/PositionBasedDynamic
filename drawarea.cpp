@@ -11,6 +11,8 @@ DrawArea::DrawArea(int _width, int _height, QWidget *parent)
     this->setFixedSize(this->width, this->height);
     this->context.addCollider(std::make_unique<PlanCollider>(
         worldToView(Vec2{{30.0, 250.0}}), normalize(Vec2{{0.0, -1.0}})));
+    this->context.addCollider(std::make_unique<PlanCollider>(
+        worldToView(Vec2{{30.0, 150.0}}), normalize(Vec2{{-1.0, -1.0}})));
 
 }
 
@@ -46,8 +48,10 @@ void DrawArea::renderContext(QPainter *painter, QPaintEvent *event) {
     painter->fillRect(this->rect(), Qt::black);    // clear canva by painting the entire background
 
     // TEMPORARY !
-    Collider* collider = context.colliders.back().get();
+    Collider* collider = context.colliders.at(0).get();
     this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(collider));
+    Collider* another_collider = context.colliders.at(1).get();
+    this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(another_collider));
 
     for (Particle circle: this->context.circles) {
         Vec2 view_pos = this->worldToView(circle.pos);

@@ -12,7 +12,6 @@ void Context::addStaticContactConstraints() {
             if (constraint) {
                 activeConstraints.push_back(*constraint);
 
-                printf("Constraint activated!");
                 particle.isActivated = true;
             }
         }
