@@ -9,12 +9,16 @@ DrawArea::DrawArea(int _width, int _height, QWidget *parent)
     : width(_width), height(_height), QOpenGLWidget{parent}
 {
     this->setFixedSize(this->width, this->height);
+
+    // Add a few colliders, for testing purpose
     this->context.addCollider(std::make_unique<PlanCollider>(
-        worldToView(Vec2{{30.0, 250.0}}), normalize(Vec2{{0.0, -1.0}})));
+        worldToView(Vec2{{30.0, 250.0}}), normalize(Vec2{{0.0, 1.0}})));
     this->context.addCollider(std::make_unique<PlanCollider>(
-        worldToView(Vec2{{30.0, 150.0}}), normalize(Vec2{{-1.0, -1.0}})));
-    this->context.addCollider(std::make_unique<SphereCollider>(
-        worldToView(Vec2{{450.0, 150.0}}), 50.0f));
+        worldToView(Vec2{{500.0, 150.0}}), normalize(Vec2{{-1.0, 1.0}})));
+    this->context.addCollider(std::make_unique<PlanCollider>(
+        worldToView(Vec2{{50.0, 150.0}}), normalize(Vec2{{2.0, 1.0}})));
+    //this->context.addCollider(std::make_unique<SphereCollider>(
+    //    worldToView(Vec2{{450.0, 150.0}}), 50.0f));
 
 }
 
@@ -39,7 +43,7 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent *event) {
 
 void DrawArea::animate() {
     this->context.addStaticContactConstraints();
-    this->context.updatePhysicalSystem(30);
+    this->context.updatePhysicalSystem(10);
 
     QPainter p(this);                       // to be refactored
     this->renderContext(&p, nullptr);
@@ -50,12 +54,15 @@ void DrawArea::renderContext(QPainter *painter, QPaintEvent *event) {
     painter->fillRect(this->rect(), Qt::black);    // clear canva by painting the entire background
 
     // TEMPORARY !
+    // Render test colliders
     Collider* collider = context.colliders.at(0).get();
     this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(collider));
     Collider* another_collider = context.colliders.at(1).get();
     this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(another_collider));
-    Collider* sphere_collider = context.colliders.at(2).get();
-    this->renderSphereCollider(painter, dynamic_cast<SphereCollider*>(sphere_collider));
+    Collider* new_collider = context.colliders.at(2).get();
+    this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(new_collider));
+    //Collider* sphere_collider = context.colliders.at(3).get();
+    //this->renderSphereCollider(painter, dynamic_cast<SphereCollider*>(sphere_collider));
 
     for (Particle circle: this->context.circles) {
         Vec2 view_pos = this->worldToView(circle.pos);
@@ -91,11 +98,17 @@ void DrawArea::renderSphereCollider(QPainter *painter, SphereCollider *collider)
     painter->drawEllipse(target);
 }
 
+/**
+ * @brief Switch from the physical system coordinates to the Qt coordinates.
+ */
 Vec2 DrawArea::worldToView(Vec2 world_pos) {
     return Vec2{world_pos[0], this->height - world_pos[1]};
 }
 
 
+/**
+ * @brief Switch from the Qt coordinates to the physical system coordinates.
+ */
 Vec2 DrawArea::viewToWorld(Vec2 view_pos) {
     return Vec2{view_pos[0], this->height - view_pos[1]};
 }

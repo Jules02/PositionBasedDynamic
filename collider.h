@@ -21,8 +21,12 @@ public:
     PlanCollider(Vec2 _position, Vec2 _normal) : position(_position), normal(_normal) {}
 
     std::optional<StaticConstraint> checkContact(const Particle& particle) const override {
-        if (dot(particle.pos - this->position, this->normal) + 2*particle.radius > 0) {
-            return StaticConstraint{this->position, this->normal, const_cast<Particle*>(&particle)};
+        //if (dot(particle.pos - this->position, this->normal) - particle.radius < 0) {
+        if (dot(particle.pos - this->position, this->normal) - 2*particle.radius < 0) {
+            Vec2 q_c = particle.pos - dot(particle.pos - this->position, this->normal) * this->normal;
+            float C = dot(particle.pos - q_c, this->normal) - 2*particle.radius;
+            Vec2 delta = -C * this->normal;
+            return StaticConstraint{this->position, this->normal, delta, const_cast<Particle*>(&particle)};
         }
         return std::nullopt;
     }
@@ -45,7 +49,7 @@ public:
         float sdf = length(particle.pos - this->center);
         if (sdf < this->radius + particle.radius) {
             Vec2 normal_c = normalize(particle.pos - this->center);
-            return StaticConstraint{particle.pos - sdf*normal_c, normal_c, const_cast<Particle*>(&particle)};
+            return StaticConstraint{particle.pos - sdf*normal_c, normal_c, Vec2{{0.0, 0.0}}, const_cast<Particle*>(&particle)};
         }
         return std::nullopt;
     }

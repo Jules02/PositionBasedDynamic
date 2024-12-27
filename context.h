@@ -25,7 +25,8 @@ private:
 
     //void addDynamicContactConstraints(float dt);
 
-    //void projectConstraints();
+    void enforceStaticGroundConstraint(const StaticConstraint& constraint);
+    void projectConstraints();
     //void applyFriction(float dt);
     //void deleteContactConstraints();
 };

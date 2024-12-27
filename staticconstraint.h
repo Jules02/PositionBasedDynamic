@@ -8,6 +8,7 @@ class StaticConstraint
 public:
     Vec2 normal;
     Vec2 origin;
+    Vec2 delta;
     Particle* particle;
 };
 
