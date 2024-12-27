@@ -9,10 +9,9 @@ DrawArea::DrawArea(int _width, int _height, QWidget *parent)
     : width(_width), height(_height), QOpenGLWidget{parent}
 {
     this->setFixedSize(this->width, this->height);
+    this->context.addCollider(std::make_unique<PlanCollider>(
+        worldToView(Vec2{{30.0, 250.0}}), normalize(Vec2{{0.0, -1.0}})));
 
-    //Vec2 colliderPos{{0.0, 0.0}};
-    //Vec2 colliderNorm{{0.0, 1.0}};
-    //this->context.addCollider(std::make_unique<PlanCollider>(colliderPos, colliderNorm));
 }
 
 void DrawArea::paintEvent(QPaintEvent *event) {}
@@ -46,15 +45,34 @@ void DrawArea::animate() {
 void DrawArea::renderContext(QPainter *painter, QPaintEvent *event) {
     painter->fillRect(this->rect(), Qt::black);    // clear canva by painting the entire background
 
+    // TEMPORARY !
+    Collider* collider = context.colliders.back().get();
+    this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(collider));
+
     for (Particle circle: this->context.circles) {
         Vec2 view_pos = this->worldToView(circle.pos);
         QRectF target(view_pos[0],view_pos[1], circle.radius*2, circle.radius*2);
-        painter->setPen(Qt::green);
+        if (circle.isActivated){
+            painter->setPen(Qt::green);
+        } else {
+            painter->setPen(Qt::gray);
+        }
         painter->setBrush(QBrush(Qt::red));
         painter->drawEllipse(target);
     }
 
     this->update();
+}
+
+void DrawArea::renderPlanCollider(QPainter *painter, PlanCollider *collider) {
+    Vec2 view_start = worldToView(collider->position - 1000 * perpendicular(collider->normal));
+    Vec2 view_end = worldToView(collider->position + 1000 * perpendicular(collider->normal));
+    painter->setPen(QPen(Qt::blue, 3));
+    painter->drawLine(view_start[0], view_start[1], view_end[0], view_end[1]);
+
+    painter->setPen(QPen(Qt::red));
+    painter->drawLine(collider->position[0], this->height - collider->position[1],
+                      collider->position[0] + collider->normal[0] * 30, this->height - (collider->position[1] + collider->normal[1] * 30));
 }
 
 Vec2 DrawArea::worldToView(Vec2 world_pos) {

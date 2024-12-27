@@ -11,9 +11,10 @@ struct Particle
     Vec2 appliedForces;
     float radius;
     float mass;
+    bool isActivated;
 
     Particle(Vec2 _pos, Vec2 _velocity, float _radius, float _mass)
-        : pos(_pos), expectedPos(_pos), velocity(_velocity), radius(_radius), mass(_mass) {}
+        : pos(_pos), expectedPos(_pos), velocity(_velocity), radius(_radius), mass(_mass), isActivated(false) {}
 };
 
 #endif // PARTICLE_H

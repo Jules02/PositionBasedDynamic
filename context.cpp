@@ -1,4 +1,5 @@
 #include "context.h"
+#include <stdio.h>
 
 Context::Context() {}
 
@@ -11,9 +12,8 @@ void Context::addStaticContactConstraints() {
             if (constraint) {
                 activeConstraints.push_back(*constraint);
 
-                particle.mass = -1.0;
-            } else {
-                // nothing
+                printf("Constraint activated!");
+                particle.isActivated = true;
             }
         }
     }
@@ -21,7 +21,7 @@ void Context::addStaticContactConstraints() {
 
 void Context::updatePhysicalSystem(float dt) {
 
-    for (Particle& circle: this->circles) {
+    for (Particle& circle: circles) {
         if (circle.pos[1] > 0 + circle.radius*2) {
             // passing each circle by reference might not be the optimal solution
             this->applyExternalForce(dt, circle);

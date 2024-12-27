@@ -14,6 +14,7 @@ public:
 
     Context context;
     void renderContext(QPainter *painter, QPaintEvent *event);
+    void renderPlanCollider(QPainter *painer, PlanCollider *collider); // temporary
 
     Vec2 worldToView(Vec2 world_pos);
     Vec2 viewToWorld(Vec2 view_pos);
