@@ -1,25 +1,14 @@
-/*#include <QtTest>
+#include "tst_testgui.h"
 
-// add necessary includes here
+void MyTestGUI::testCase1() {
+    int value = 42;
+    QCOMPARE(value, 42);
+}
 
-class testgui : public QObject
-{
-    Q_OBJECT
+void MyTestGUI::testCase2() {
+    QString str = "QtTest";
+    QVERIFY(str.contains("blabla"));
+}
 
-public:
-    testgui();
-    ~testgui();
-
-private slots:
-    void test_case1();
-};
-
-testgui::testgui() {}
-
-testgui::~testgui() {}
-
-void testgui::test_case1() {}
-
-QTEST_APPLESS_MAIN(testgui)
-
-#include "tst_testgui.moc"*/
+QTEST_MAIN(MyTestGUI)
+#include "tst_testgui.moc"
