@@ -1,9 +1,9 @@
 #include "drawarea.h"
-#include "particle.h"
 #include "Vec2.h"
+#include "collider.h"
+#include "particle.h"
 #include <QPainter>
 #include <QMouseEvent>
-#include <vector>
 
 DrawArea::DrawArea(int _width, int _height, QWidget *parent)
     : width(_width), height(_height), QOpenGLWidget{parent}
@@ -42,7 +42,6 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 void DrawArea::animate() {
-    this->context.addStaticContactConstraints();
     this->context.updatePhysicalSystem(10);
 
     QPainter p(this);                       // to be refactored
