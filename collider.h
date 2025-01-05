@@ -10,6 +10,8 @@ class Collider
 public:
     virtual ~Collider() = default;
 
+    virtual std::array<Vec2, 2> getCollisionParameters(Vec2 particlePos, float particleRadius) = 0;
+
     //virtual std::optional<StaticConstraint> checkContact(const Particle& particle) const = 0;
 };
 
@@ -17,6 +19,10 @@ class PlanCollider: public Collider
 {
 public:
     PlanCollider(Vec2 _position, Vec2 _normal) : position(_position), normal(_normal) {}
+
+    inline std::array<Vec2, 2> getCollisionParameters(Vec2, float) override {
+        return {position, normal};
+    }
 
     /*
     std::optional<StaticConstraint> checkContact(const Particle& particle) const override {
@@ -38,6 +44,13 @@ class SphereCollider: public Collider
 {
 public:
     SphereCollider(Vec2 _center, float _radius) : center(_center), radius(_radius) {}
+
+    inline std::array<Vec2, 2> getCollisionParameters(Vec2 particlePos, float particleRadius) override {
+        float sdf = length(particlePos - this->center) - (radius + particleRadius);
+        Vec2 n_c = 1/length(particlePos - this->center) * (particlePos - this->center);
+        Vec2 p_c = particlePos - sdf * n_c;
+        return {p_c, n_c};
+    }
 
     /*std::optional<StaticConstraint> checkContact(const Particle& particle) const override {
         // BUG: for the moment, sphere colliders are not implemented properly

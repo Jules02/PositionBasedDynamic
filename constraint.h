@@ -44,9 +44,15 @@ public:
     {
         this->particle = _particle;
 
-        Vec2 q_c = this->particle->pos - dot(this->particle->pos - collider.position, collider.normal) * collider.normal;
+        /*Vec2 q_c = this->particle->pos - dot(this->particle->pos - collider.position, collider.normal) * collider.normal;
         float C = dot(this->particle->pos - q_c, collider.normal) - this->particle->radius;
-        this->delta = -C * collider.normal;
+        this->delta = -C * collider.normal;*/
+        auto param = collider.getCollisionParameters(this->particle->pos, this->particle->radius);
+        this->p_c = param[0];
+        this->n_c = param[1];
+        Vec2 q_c = this->particle->pos - dot(this->particle->pos - this->p_c, this->n_c) * this->n_c;
+        float C = dot(this->particle->pos - q_c, n_c) - this->particle->radius;
+        this->delta = -C*n_c;
 
         this->type = INEQUALITY;
     }
@@ -54,10 +60,12 @@ public:
     ~StaticConstraint() override = default;
 
     inline float constraintFunction() override {
-        return -1 * (dot(this->particle->pos - this->collider.position, this->collider.normal) - this->particle->radius);
+        return -1 * (dot(this->particle->pos - this->p_c, this->n_c) - this->particle->radius);
     }
 
     PlanCollider collider;
+    Vec2 p_c;
+    Vec2 n_c;
 
 private:
 
