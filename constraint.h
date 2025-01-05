@@ -10,8 +10,6 @@ class Constraint
 public:
     
     enum ConstraintType { EQUALITY, INEQUALITY };
-    
-    //Constraint();
 
     virtual ~Constraint() = default;
 
@@ -25,34 +23,34 @@ public:
         
     }
 
+    inline Vec2 getDelta() const { return delta; }
+
     Particle* particle;
+
+protected:
     Vec2 delta;
     virtual float constraintFunction() = 0;
     ConstraintType type;
     
 private:
-
     //int n;
     float stiffness;
+
+    virtual inline void computeDelta() = 0;
 
 };
 
 class StaticConstraint : public Constraint {
 public:
-    StaticConstraint(const PlanCollider& _collider, Particle* _particle)
+    StaticConstraint(const Collider& _collider, Particle* _particle)
         : collider(_collider)
     {
         this->particle = _particle;
 
-        /*Vec2 q_c = this->particle->pos - dot(this->particle->pos - collider.position, collider.normal) * collider.normal;
-        float C = dot(this->particle->pos - q_c, collider.normal) - this->particle->radius;
-        this->delta = -C * collider.normal;*/
         auto param = collider.getCollisionParameters(this->particle->pos, this->particle->radius);
         this->p_c = param[0];
         this->n_c = param[1];
-        Vec2 q_c = this->particle->pos - dot(this->particle->pos - this->p_c, this->n_c) * this->n_c;
-        float C = dot(this->particle->pos - q_c, n_c) - this->particle->radius;
-        this->delta = -C*n_c;
+        computeDelta();
 
         this->type = INEQUALITY;
     }
@@ -63,11 +61,17 @@ public:
         return -1 * (dot(this->particle->pos - this->p_c, this->n_c) - this->particle->radius);
     }
 
-    PlanCollider collider;
+
+private:
+    const Collider& collider;
     Vec2 p_c;
     Vec2 n_c;
 
-private:
+    inline void computeDelta() override {
+        Vec2 q_c = this->particle->pos - dot(this->particle->pos - this->p_c, this->n_c) * this->n_c;
+        float C = dot(this->particle->pos - q_c, this->n_c) - this->particle->radius;
+        this->delta = -C*n_c;
+    }
 
 };
 
@@ -78,10 +82,7 @@ public:
     {
         this->particle = _particle;
 
-        float distance = length(this->particle->pos - colliderParticle.pos);
-        this->C = distance - (this->particle->radius + colliderParticle.radius);
-        float sigma_i = (1/colliderParticle.mass) / (1/colliderParticle.mass + 1/this->particle->mass) * C;
-        this->delta = - sigma_i * 1/distance * (this->particle->pos - colliderParticle.pos);
+        computeDelta();
 
         this->type = INEQUALITY;
     }
@@ -92,8 +93,16 @@ public:
         return -C;
     }
 
+private:
     float C;
     Particle colliderParticle;
+
+    inline void computeDelta() override {
+        float distance = length(this->particle->pos - this->colliderParticle.pos);
+        this->C = distance - (this->particle->radius + this->colliderParticle.radius);
+        float sigma_i = (1/this->colliderParticle.mass) / (1/this->colliderParticle.mass + 1/this->particle->mass) * C;
+        this->delta = - sigma_i * 1/distance * (this->particle->pos - this->colliderParticle.pos);
+    }
 };
 
 #endif // CONSTRAINT_H

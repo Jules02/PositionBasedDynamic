@@ -17,8 +17,8 @@ DrawArea::DrawArea(int _width, int _height, QWidget *parent)
         worldToView(Vec2{{500.0, 150.0}}), normalize(Vec2{{-1.0, 1.0}})));
     this->context.addCollider(std::make_unique<PlanCollider>(
         worldToView(Vec2{{50.0, 150.0}}), normalize(Vec2{{2.0, 1.0}})));
-    //this->context.addCollider(std::make_unique<SphereCollider>(
-    //    worldToView(Vec2{{450.0, 150.0}}), 50.0f));
+    this->context.addCollider(std::make_unique<SphereCollider>(
+        worldToView(Vec2{{450.0, 150.0}}), 50.0f));
 
 }
 
@@ -60,8 +60,8 @@ void DrawArea::renderContext(QPainter *painter, QPaintEvent *event) {
     this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(another_collider));
     Collider* new_collider = context.colliders.at(2).get();
     this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(new_collider));
-    //Collider* sphere_collider = context.colliders.at(3).get();
-    //this->renderSphereCollider(painter, dynamic_cast<SphereCollider*>(sphere_collider));
+    Collider* sphere_collider = context.colliders.at(3).get();
+    this->renderSphereCollider(painter, dynamic_cast<SphereCollider*>(sphere_collider));
 
     for (Particle circle: this->context.circles) {
         Vec2 view_pos = this->worldToView(circle.pos);
@@ -84,6 +84,7 @@ void DrawArea::renderPlanCollider(QPainter *painter, PlanCollider *collider) {
     painter->setPen(QPen(Qt::blue, 3));
     painter->drawLine(view_start[0], view_start[1], view_end[0], view_end[1]);
 
+    // Draw normal
     painter->setPen(QPen(Qt::red));
     painter->drawLine(collider->position[0], this->height - collider->position[1],
                       collider->position[0] + collider->normal[0] * 30, this->height - (collider->position[1] + collider->normal[1] * 30));

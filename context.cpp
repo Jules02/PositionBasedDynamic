@@ -58,14 +58,9 @@ void Context::addStaticContactConstraints(float dt) {
 
     // Check for contact between each collider/particle pair
     for (auto& collider : colliders) {
-        // TEMPORARY !
-
-        auto* planCollider = dynamic_cast<PlanCollider*>(collider.get());
-        if (!planCollider) continue;
-
 
         for (Particle& particle : circles) {
-            auto constraint = std::make_unique<StaticConstraint>(*planCollider, &particle);
+            auto constraint = std::make_unique<StaticConstraint>(*collider.get(), &particle);
 
             if (constraint->isSatisfied()) {
 
@@ -78,7 +73,7 @@ void Context::addStaticContactConstraints(float dt) {
 }
 
 void Context::enforceConstraint(const Constraint& constraint, Particle& particle) {
-    particle.expectedPos = particle.expectedPos + constraint.delta;
+    particle.expectedPos = particle.expectedPos + constraint.getDelta();
 }
 
 
