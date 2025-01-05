@@ -12,7 +12,9 @@ public:
     enum ConstraintType { EQUALITY, INEQUALITY };
     
     //Constraint();
-    
+
+    virtual ~Constraint() = default;
+
     inline bool isSatisfied() {
         switch (type) {
         case EQUALITY:
@@ -49,6 +51,8 @@ public:
         this->type = INEQUALITY;
     }
 
+    ~StaticConstraint() override = default;
+
     inline float constraintFunction() override {
         return -1 * (dot(this->particle->pos - this->collider.position, this->collider.normal) - this->particle->radius);
     }
@@ -57,6 +61,31 @@ public:
 
 private:
 
+};
+
+class DynamicConstraint : public Constraint {
+public:
+    DynamicConstraint(const Particle& _colliderParticle, Particle* _particle)
+        : colliderParticle(_colliderParticle)
+    {
+        this->particle = _particle;
+
+        float distance = length(this->particle->pos - colliderParticle.pos);
+        this->C = distance - (this->particle->radius + colliderParticle.radius);
+        float sigma_i = (1/colliderParticle.mass) / (1/colliderParticle.mass + 1/this->particle->mass) * C;
+        this->delta = - sigma_i * 1/distance * (this->particle->pos - colliderParticle.pos);
+
+        this->type = INEQUALITY;
+    }
+
+    ~DynamicConstraint() override = default;
+
+    inline float constraintFunction() override {
+        return -C;
+    }
+
+    float C;
+    Particle colliderParticle;
 };
 
 #endif // CONSTRAINT_H

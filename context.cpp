@@ -9,6 +9,7 @@ void Context::updatePhysicalSystem(float dt) {
     this->applyExternalForce(dt);             // (5)
     this->dampVelocities(dt);                 // (6)
     this->updateExpectedPosition(dt);         // (7)
+    this->activeConstraints.clear();
     this->addDynamicContactConstraints(dt);   // (8)
     this->addStaticContactConstraints(dt);    // (8)
     this->projectConstraints();               // (9-11)
@@ -29,7 +30,7 @@ void Context::applyExternalForce(float dt) {
 }
 
 void Context::dampVelocities(float dt) {
-    for (Particle& particle: circles) particle.velocity = 0.97*particle.velocity;
+    for (Particle& particle: circles) particle.velocity = 0.96*particle.velocity;
 }
 
 void Context::updateExpectedPosition(float dt) {
@@ -37,14 +38,23 @@ void Context::updateExpectedPosition(float dt) {
 }
 
 void Context::addDynamicContactConstraints(float dt) {
+    for (Particle& particle_i : circles) {
+        for (const Particle& particle_j : circles) {
+            if (&particle_i == &particle_j) continue;
+            auto constraint = std::make_unique<DynamicConstraint>(particle_j, &particle_i);
+            if (constraint->isSatisfied()) {
 
+                addConstraint(std::move(constraint));
+
+                particle_i.isActivated = true;
+            }
+        }
+    }
 }
 
 void Context::addStaticContactConstraints(float dt) {
 
     // GENERATE CONSTRAINTS
-
-    activeConstraints.clear();
 
     // Check for contact between each collider/particle pair
     for (auto& collider : colliders) {
@@ -55,11 +65,11 @@ void Context::addStaticContactConstraints(float dt) {
 
 
         for (Particle& particle : circles) {
-            StaticConstraint constraint(*planCollider, &particle);
+            auto constraint = std::make_unique<StaticConstraint>(*planCollider, &particle);
 
-            if (constraint.isSatisfied()) {
+            if (constraint->isSatisfied()) {
 
-                activeConstraints.push_back(constraint);
+                addConstraint(std::move(constraint));
 
                 particle.isActivated = true;
             }
@@ -67,14 +77,14 @@ void Context::addStaticContactConstraints(float dt) {
     }
 }
 
-void Context::enforceStaticGroundConstraint(const StaticConstraint& constraint, Particle& particle) {
+void Context::enforceConstraint(const Constraint& constraint, Particle& particle) {
     particle.expectedPos = particle.expectedPos + constraint.delta;
 }
 
 
 void Context::projectConstraints() {
-    for (StaticConstraint& constraint: activeConstraints) {
-        enforceStaticGroundConstraint(constraint, *constraint.particle);
+    for (const std::unique_ptr<Constraint>& constraint : activeConstraints) {
+        enforceConstraint(*constraint, *constraint->particle);
     }
 }
 

@@ -12,9 +12,10 @@ public:
     bool isGravityOn;
 
     std::vector<std::unique_ptr<Collider>> colliders;
-    std::vector<StaticConstraint> activeConstraints;
+    std::vector<std::unique_ptr<Constraint>> activeConstraints;
 
     inline void addCollider(std::unique_ptr<Collider> collider) { colliders.push_back(std::move(collider)); }
+    inline void addConstraint(std::unique_ptr<Constraint> constraint) { activeConstraints.push_back(std::move(constraint)); }
 
     void updatePhysicalSystem(float dt);
 
@@ -24,7 +25,7 @@ private:
     void updateExpectedPosition(float dt);
     void addDynamicContactConstraints(float dt);
     void addStaticContactConstraints(float dt);
-    void enforceStaticGroundConstraint(const StaticConstraint&, Particle&);
+    void enforceConstraint(const Constraint&, Particle&);
     void projectConstraints();
     void updateVelocityAndPosition(float dt);
     void applyFriction(float dt);
