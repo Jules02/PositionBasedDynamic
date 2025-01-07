@@ -33,7 +33,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         context.h context.cpp
         tst_testgui.cpp
         collider.h collider.cpp
-        staticconstraint.h staticconstraint.cpp
+
+
+        constraint.h constraint.cpp
 
 
     )
