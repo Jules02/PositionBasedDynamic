@@ -10,6 +10,17 @@ DrawArea::DrawArea(int _width, int _height, QWidget *parent)
 {
     this->setFixedSize(this->width, this->height);
 
+    float radius = 15;
+    float mass = 1.0;
+    Particle circle1(this->viewToWorld({{ 350, 30 }}), {{ 0.0, 0.0 }}, radius, mass);
+    this->context.circles.push_back(circle1);
+    Particle circle2(this->viewToWorld({{ 350, 65 }}), {{ 0.0, 0.0 }}, radius, mass);
+    this->context.circles.push_back(circle2);
+    Particle circle3(this->viewToWorld({{ 385, 30 }}), {{ 0.0, 0.0 }}, radius, mass);
+    this->context.circles.push_back(circle3);
+    Particle circle4(this->viewToWorld({{ 385, 65 }}), {{ 0.0, 0.0 }}, radius, mass);
+    this->context.circles.push_back(circle4);
+
     // Add a few colliders, for testing purpose
     this->context.addCollider(std::make_unique<PlanCollider>(
         worldToView(Vec2{{30.0, 250.0}}), normalize(Vec2{{0.0, 1.0}})));

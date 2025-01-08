@@ -23,6 +23,8 @@ private:
     void applyExternalForce(float dt);
     void dampVelocities(float dt);
     void updateExpectedPosition(float dt);
+    void updateNeighbors(float dt);
+    void addFluidConstraints(float dt);
     void addDynamicContactConstraints(float dt);
     void addStaticContactConstraints(float dt);
     void enforceConstraint(const Constraint&, Particle&);

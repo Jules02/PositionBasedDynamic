@@ -38,6 +38,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         constraint.h constraint.cpp
 
 
+
     )
     add_test(NAME PositionBasedDynamic COMMAND testgui)
 # Define target properties for Android with Qt 6 as:
