@@ -10,6 +10,9 @@ class Collider
 public:
     virtual ~Collider() = default;
 
+    /**
+     * @return the couple (p_c, n_c) defined in Equations.pdf
+     */
     virtual std::array<Vec2, 2> getCollisionParameters(Vec2 particlePos, float particleRadius) const = 0;
 };
 

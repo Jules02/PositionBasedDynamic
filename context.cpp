@@ -3,17 +3,19 @@
 
 Context::Context() {}
 
+const float K_DAMPING = 0.96;
+
 void Context::updatePhysicalSystem(float dt) {
 
     // Refer to Equations.pdf from the assignement for more details on the different steps
     this->applyExternalForce(dt);             // (5)
-    this->dampVelocities(dt);                 // (6)
+    this->dampVelocities();                 // (6)
     this->updateExpectedPosition(dt);         // (7)
-    this->updateNeighbors(dt);
+    //this->updateNeighbors(dt);
     this->activeConstraints.clear();
-    this->addFluidConstraints(dt);
-    this->addDynamicContactConstraints(dt);   // (8)
-    this->addStaticContactConstraints(dt);    // (8)
+    //this->addFluidConstraints(dt);
+    this->addDynamicContactConstraints();   // (8)
+    this->addStaticContactConstraints();    // (8)
     this->projectConstraints();               // (9-11)
     this->updateVelocityAndPosition(dt);      // (12-15)
     this->applyFriction(dt);                  // (16)
@@ -24,22 +26,22 @@ void Context::applyExternalForce(float dt) {
     for (Particle& particle: circles) {
         // GRAVITY
         if (this->isGravityOn) {
-            particle.appliedForces = 0.0003 * Vec2{0, static_cast<float>(-particle.mass*9.81)};
+            particle.appliedForces = 0.0003*Vec2{0, static_cast<float>(-particle.mass*9.81)};
         }
 
         particle.velocity = particle.velocity + (dt / particle.mass) * particle.appliedForces;
     }
 }
 
-void Context::dampVelocities(float dt) {
-    for (Particle& particle: circles) particle.velocity = 0.96*particle.velocity;
+void Context::dampVelocities() {
+    for (Particle& particle: circles) particle.velocity = K_DAMPING*particle.velocity;
 }
 
 void Context::updateExpectedPosition(float dt) {
     for (Particle& particle: circles) particle.expectedPos = particle.pos + dt * particle.velocity;
 }
 
-void Context::updateNeighbors(float dt) {
+void Context::updateNeighbors() {
     for (Particle& particle_i : circles) {
         for (Particle& particle_j : circles) {
             if (length(particle_j.pos - particle_i.pos) < 50) {
@@ -49,7 +51,7 @@ void Context::updateNeighbors(float dt) {
     }
 }
 
-void Context::addFluidConstraints(float dt) {
+void Context::addFluidConstraints() {
     for (Particle& particle_i : circles) {
         auto constraint = std::make_unique<FluidConstraint>(&particle_i);
         if (constraint->isSatisfied()) {
@@ -58,12 +60,12 @@ void Context::addFluidConstraints(float dt) {
     }
 }
 
-void Context::addDynamicContactConstraints(float dt) {
+void Context::addDynamicContactConstraints() {
 
     for (Particle& particle_i : circles) {
         for (const Particle& particle_j : circles) {
             if (&particle_i == &particle_j) continue;
-            /*
+
             auto constraint = std::make_unique<DynamicConstraint>(particle_j, &particle_i);
             if (constraint->isSatisfied()) {
 
@@ -72,7 +74,7 @@ void Context::addDynamicContactConstraints(float dt) {
                 particle_i.isActivated = true;
             }
 
-
+            /*
             auto link = std::make_unique<DynamicLink>(particle_j, &particle_i);
             if (link->isSatisfied()) {
                 addConstraint(std::move(link));
@@ -81,7 +83,7 @@ void Context::addDynamicContactConstraints(float dt) {
     }
 }
 
-void Context::addStaticContactConstraints(float dt) {
+void Context::addStaticContactConstraints() {
 
     // GENERATE CONSTRAINTS
 
@@ -107,7 +109,7 @@ void Context::enforceConstraint(const Constraint& constraint, Particle& particle
 
 
 void Context::projectConstraints() {
-    for (const std::unique_ptr<Constraint>& constraint : activeConstraints) {
+    for (const auto& constraint : activeConstraints) {
         enforceConstraint(*constraint, *constraint->particle);
     }
 }

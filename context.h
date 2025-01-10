@@ -21,12 +21,12 @@ public:
 
 private:
     void applyExternalForce(float dt);
-    void dampVelocities(float dt);
+    void dampVelocities();
     void updateExpectedPosition(float dt);
-    void updateNeighbors(float dt);
-    void addFluidConstraints(float dt);
-    void addDynamicContactConstraints(float dt);
-    void addStaticContactConstraints(float dt);
+    void updateNeighbors();
+    void addFluidConstraints();
+    void addDynamicContactConstraints();
+    void addStaticContactConstraints();
     void enforceConstraint(const Constraint&, Particle&);
     void projectConstraints();
     void updateVelocityAndPosition(float dt);
