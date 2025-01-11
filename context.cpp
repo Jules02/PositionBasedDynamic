@@ -23,25 +23,36 @@ void Context::updatePhysicalSystem(float dt) {
 }
 
 void Context::applyExternalForce(float dt) {
-    for (Particle& particle: circles) {
-        // GRAVITY
-        if (this->isGravityOn) {
-            particle.appliedForces = 0.0003*Vec2{0, static_cast<float>(-particle.mass*9.81)};
-        }
+    for (Object& object: objects){
+        for (auto& particle: object.particles) {
+            // GRAVITY
+            if (this->isGravityOn) {
+                particle->appliedForces = 0.0003*Vec2{0, static_cast<float>(-particle->mass*9.81)};
+            }
 
-        particle.velocity = particle.velocity + (dt / particle.mass) * particle.appliedForces;
+            particle->velocity = particle->velocity + (dt / particle->mass) * particle->appliedForces;
+        }
     }
 }
 
 void Context::dampVelocities() {
-    for (Particle& particle: circles) particle.velocity = K_DAMPING*particle.velocity;
+    for (Object& object: objects){
+        for (auto& particle: object.particles) {
+            particle->velocity = K_DAMPING*particle->velocity;
+        }
+    }
 }
 
 void Context::updateExpectedPosition(float dt) {
-    for (Particle& particle: circles) particle.expectedPos = particle.pos + dt * particle.velocity;
+    for (Object& object: objects){
+        for (auto& particle: object.particles) {
+            particle->expectedPos = particle->pos + dt * particle->velocity;
+        }
+    }
 }
 
 void Context::updateNeighbors() {
+    /*
     for (Particle& particle_i : circles) {
         for (Particle& particle_j : circles) {
             if (length(particle_j.pos - particle_i.pos) < 50) {
@@ -49,36 +60,44 @@ void Context::updateNeighbors() {
             }
         }
     }
+    */
 }
 
 void Context::addFluidConstraints() {
+    /*
     for (Particle& particle_i : circles) {
         auto constraint = std::make_unique<FluidConstraint>(&particle_i);
         if (constraint->isSatisfied()) {
             addConstraint(std::move(constraint));
         }
     }
+    */
 }
 
 void Context::addDynamicContactConstraints() {
+    for (Object& object: objects) {
+        for (auto& particle_i : object.particles) {
 
-    for (Particle& particle_i : circles) {
-        for (const Particle& particle_j : circles) {
-            if (&particle_i == &particle_j) continue;
+            for (const auto& particle_j : object.particles) {
+                if (&(*particle_j) == particle_i.get()) continue;
 
-            auto constraint = std::make_unique<DynamicConstraint>(particle_j, &particle_i);
-            if (constraint->isSatisfied()) {
-
-                addConstraint(std::move(constraint));
-
-                particle_i.isActivated = true;
+                auto link = std::make_unique<LinkConstraint>(*particle_j, particle_i.get());
+                if (link->isSatisfied()) {
+                    addConstraint(std::move(link));
+                }
             }
 
-            /*
-            auto link = std::make_unique<DynamicLink>(particle_j, &particle_i);
-            if (link->isSatisfied()) {
-                addConstraint(std::move(link));
-            }*/
+            for(const Object& otherObject: objects) {
+                if (&otherObject == &object) continue;
+                for (const auto& particle_j: otherObject.particles) {
+                    auto constraint = std::make_unique<DynamicConstraint>(*particle_j, particle_i.get());
+                    if (constraint->isSatisfied()) {
+                        addConstraint(std::move(constraint));
+
+                        particle_i->isActivated = true;
+                    }
+                }
+            }
         }
     }
 }
@@ -90,14 +109,16 @@ void Context::addStaticContactConstraints() {
     // Check for contact between each collider/particle pair
     for (auto& collider : colliders) {
 
-        for (Particle& particle : circles) {
-            auto constraint = std::make_unique<StaticConstraint>(*collider.get(), &particle);
+        for (Object& object: objects){
+            for (auto& particle: object.particles) {
+                auto constraint = std::make_unique<StaticConstraint>(*collider.get(), particle.get());
 
-            if (constraint->isSatisfied()) {
+                if (constraint->isSatisfied()) {
 
-                addConstraint(std::move(constraint));
+                    addConstraint(std::move(constraint));
 
-                particle.isActivated = true;
+                    particle->isActivated = true;
+                }
             }
         }
     }
@@ -116,9 +137,11 @@ void Context::projectConstraints() {
 
 
 void Context::updateVelocityAndPosition(float dt) {
-    for (Particle& particle: circles) {
-        particle.velocity = 1/dt * (particle.expectedPos - particle.pos);
-        particle.pos = particle.expectedPos;
+    for (Object& object: objects){
+        for (auto& particle: object.particles) {
+            particle->velocity = 1/dt * (particle->expectedPos - particle->pos);
+            particle->pos = particle->expectedPos;
+        }
     }
 }
 

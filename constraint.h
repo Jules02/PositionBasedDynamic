@@ -96,8 +96,8 @@ public:
     float constraintFunction() override;
 
 private:
-    float L = 35;
-    float gamma = 1.0;
+    float L = 30;
+    float gamma = 0.6;
 
     float C;
     Particle colliderParticle;

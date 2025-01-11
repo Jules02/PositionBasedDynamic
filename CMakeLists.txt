@@ -36,6 +36,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
 
         constraint.h constraint.cpp
+        object.h object.cpp
 
 
 
