@@ -22,11 +22,13 @@ set(PROJECT_SOURCES
 
 set(SHARED_SOURCES
     drawarea.h drawarea.cpp
-    particle.h
-    Vec2.h
-    context.h context.cpp
-    collider.h collider.cpp
-    staticconstraint.h staticconstraint.cpp
+        particle.h
+        Vec2.h
+        context.h context.cpp
+        tst_testgui.cpp
+        collider.h collider.cpp
+        constraint.h constraint.cpp
+        object.h object.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

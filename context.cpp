@@ -3,79 +3,149 @@
 
 Context::Context() {}
 
-void Context::addStaticContactConstraints() {
-    activeConstraints.clear();
+const float K_DAMPING = 0.96;
 
-    // Check for contact between each collider/particle pair
-    for (auto& collider : colliders) {
-        for (Particle& particle : circles) {
-            auto constraint = collider->checkContact(particle);
-            if (constraint) {
-                activeConstraints.push_back(*constraint);
+void Context::updatePhysicalSystem(float dt) {
 
-                particle.isActivated = true;
+    // Refer to Equations.pdf from the assignement for more details on the different steps
+    this->applyExternalForce(dt);             // (5)
+    this->dampVelocities();                 // (6)
+    this->updateExpectedPosition(dt);         // (7)
+    //this->updateNeighbors(dt);
+    this->activeConstraints.clear();
+    //this->addFluidConstraints(dt);
+    this->addDynamicContactConstraints();   // (8)
+    this->addStaticContactConstraints();    // (8)
+    this->projectConstraints();               // (9-11)
+    this->updateVelocityAndPosition(dt);      // (12-15)
+    this->applyFriction(dt);                  // (16)
+
+}
+
+void Context::applyExternalForce(float dt) {
+    for (Object& object: objects){
+        for (auto& particle: object.particles) {
+            // GRAVITY
+            if (this->isGravityOn) {
+                particle->appliedForces = 0.0003*Vec2{0, static_cast<float>(-particle->mass*9.81)};
+            }
+
+            particle->velocity = particle->velocity + (dt / particle->mass) * particle->appliedForces;
+        }
+    }
+}
+
+void Context::dampVelocities() {
+    for (Object& object: objects){
+        for (auto& particle: object.particles) {
+            particle->velocity = K_DAMPING*particle->velocity;
+        }
+    }
+}
+
+void Context::updateExpectedPosition(float dt) {
+    for (Object& object: objects){
+        for (auto& particle: object.particles) {
+            particle->expectedPos = particle->pos + dt * particle->velocity;
+        }
+    }
+}
+
+void Context::updateNeighbors() {
+    /*
+    for (Particle& particle_i : circles) {
+        for (Particle& particle_j : circles) {
+            if (length(particle_j.pos - particle_i.pos) < 50) {
+                particle_i.neighbors.push_back(&particle_j);
+            }
+        }
+    }
+    */
+}
+
+void Context::addFluidConstraints() {
+    /*
+    for (Particle& particle_i : circles) {
+        auto constraint = std::make_unique<FluidConstraint>(&particle_i);
+        if (constraint->isSatisfied()) {
+            addConstraint(std::move(constraint));
+        }
+    }
+    */
+}
+
+void Context::addDynamicContactConstraints() {
+    for (Object& object: objects) {
+        for (auto& particle_i : object.particles) {
+
+            for (const auto& particle_j : object.particles) {
+                if (&(*particle_j) == particle_i.get()) continue;
+
+                auto link = std::make_unique<LinkConstraint>(*particle_j, particle_i.get());
+                if (link->isSatisfied()) {
+                    addConstraint(std::move(link));
+                }
+            }
+
+            for(const Object& otherObject: objects) {
+                if (&otherObject == &object) continue;
+                for (const auto& particle_j: otherObject.particles) {
+                    auto constraint = std::make_unique<DynamicConstraint>(*particle_j, particle_i.get());
+                    if (constraint->isSatisfied()) {
+                        addConstraint(std::move(constraint));
+
+                        particle_i->isActivated = true;
+                    }
+                }
             }
         }
     }
 }
 
-void Context::updatePhysicalSystem(float dt) {
+void Context::addStaticContactConstraints() {
 
-    // Refer to Equations.pdf from the assignement for more details on the different steps
+    // GENERATE CONSTRAINTS
 
-    for (Particle& circle: circles) {
+    // Check for contact between each collider/particle pair
+    for (auto& collider : colliders) {
 
-        // 1. Update velocities
-        this->applyExternalForce(dt, circle);
-        circle.velocity = circle.velocity + (dt / circle.mass) * circle.appliedForces;
-        // 2. Compute expected positions
-        circle.expectedPos = circle.pos + dt * circle.velocity;
+        for (Object& object: objects){
+            for (auto& particle: object.particles) {
+                auto constraint = std::make_unique<StaticConstraint>(*collider.get(), particle.get());
 
-    }
+                if (constraint->isSatisfied()) {
 
-    // 3.
-    this->projectConstraints();
+                    addConstraint(std::move(constraint));
 
-    for (Particle& circle: circles) {
-
-        // 3bis. Resolve constraints
-        this->updateExpectedPosition(dt, circle);
-        circle.delta = -0.5*circle.delta;
-        // 4. Update velocity and position
-        this->updateVelocityAndPosition(dt, circle);
-    }
-
-}
-
-void Context::applyExternalForce(float dt, Particle& particle) {
-    // GRAVITY
-    if (this->isGravityOn) {
-        particle.appliedForces = 0.0001 * Vec2{0, static_cast<float>(-particle.mass*9.81)};
+                    particle->isActivated = true;
+                }
+            }
+        }
     }
 }
 
-void Context::updateExpectedPosition(float dt, Particle& particle) {
-    particle.expectedPos = particle.expectedPos + particle.delta;
-}
-
-void Context::updateVelocityAndPosition(float dt, Particle& particle) {
-    particle.velocity = 1/dt * (particle.expectedPos - particle.pos);
-    particle.pos = particle.expectedPos;
-}
-
-void Context::enforceStaticGroundConstraint(const StaticConstraint& constraint) {
-    //Vec2 q_c = constraint.particle->pos - dot(constraint.particle->pos - constraint.origin, constraint.normal) * constraint.normal;
-    //float C = dot(constraint.particle->pos - q_c, constraint.normal) - constraint.particle->radius;
-    //Vec2 delta = -C * constraint.normal;
-    constraint.particle->delta = constraint.delta;
-    constraint.particle->velocity = 0.90 * constraint.particle->velocity;
+void Context::enforceConstraint(const Constraint& constraint, Particle& particle) {
+    particle.expectedPos = particle.expectedPos + constraint.getDelta();
 }
 
 
 void Context::projectConstraints() {
-    for (StaticConstraint& constraint: activeConstraints) {
-        enforceStaticGroundConstraint(constraint);
+    for (const auto& constraint : activeConstraints) {
+        enforceConstraint(*constraint, *constraint->particle);
     }
 }
 
+
+void Context::updateVelocityAndPosition(float dt) {
+    for (Object& object: objects){
+        for (auto& particle: object.particles) {
+            particle->velocity = 1/dt * (particle->expectedPos - particle->pos);
+            particle->pos = particle->expectedPos;
+        }
+    }
+}
+
+void Context::applyFriction(float dt) {
+
+}
 

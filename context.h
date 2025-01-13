@@ -1,34 +1,39 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include "object.h"
 #include "collider.h"
-#include "staticconstraint.h"
+#include "constraint.h"
 
 class Context
 {
 public:
     Context();
-    std::vector<Particle> circles;
+
+    std::vector<Object> objects;
+
     bool isGravityOn;
 
     std::vector<std::unique_ptr<Collider>> colliders;
-    std::vector<StaticConstraint> activeConstraints;
-
+    std::vector<std::unique_ptr<Constraint>> activeConstraints;
     inline void addCollider(std::unique_ptr<Collider> collider) { colliders.push_back(std::move(collider)); }
-    void addStaticContactConstraints();
+    inline void addConstraint(std::unique_ptr<Constraint> constraint) { activeConstraints.push_back(std::move(constraint)); }
+
     void updatePhysicalSystem(float dt);
 
 private:
-    void applyExternalForce(float dt, Particle& particle);
-    void updateExpectedPosition(float dt, Particle& particle);
-    void updateVelocityAndPosition(float dt, Particle& particle);
-
-    //void addDynamicContactConstraints(float dt);
-
-    void enforceStaticGroundConstraint(const StaticConstraint& constraint);
+    void applyExternalForce(float dt);
+    void dampVelocities();
+    void updateExpectedPosition(float dt);
+    void updateNeighbors();
+    void addFluidConstraints();
+    void addDynamicContactConstraints();
+    void addStaticContactConstraints();
+    void enforceConstraint(const Constraint&, Particle&);
     void projectConstraints();
-    //void applyFriction(float dt);
-    //void deleteContactConstraints();
+    void updateVelocityAndPosition(float dt);
+    void applyFriction(float dt);
+    void deleteContactConstraints();
 };
 
 #endif // CONTEXT_H

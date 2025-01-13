@@ -1,14 +1,40 @@
 #include "drawarea.h"
-#include "particle.h"
 #include "Vec2.h"
+#include "collider.h"
+#include "particle.h"
+#include "object.h"
 #include <QPainter>
 #include <QMouseEvent>
-#include <vector>
+
+QColor generateRandomColor() {
+    int red = std::rand() % 256;
+    int green = std::rand() % 256;
+    int blue = std::rand() % 256;
+
+    return QColor(red, green, blue);
+}
 
 DrawArea::DrawArea(int _width, int _height, QWidget *parent)
     : width(_width), height(_height), QOpenGLWidget{parent}
 {
+    std::srand(std::time(nullptr));
+
     this->setFixedSize(this->width, this->height);
+
+    // Add two first objects
+    float radius = 15;
+    float mass = 1.0;
+    Particle circle1(this->viewToWorld({{ 350, 30 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle2(this->viewToWorld({{ 350, 70 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle3(this->viewToWorld({{ 390, 30 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle4(this->viewToWorld({{ 390, 70 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Object object(generateRandomColor(), circle1, circle2, circle3, circle4);
+    this->context.objects.push_back(std::move(object));
+    Particle circle5(this->viewToWorld({{ 160, 65 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle6(this->viewToWorld({{ 155, 35 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle7(this->viewToWorld({{ 185, 35 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Object object2(generateRandomColor(), circle5, circle6, circle7);
+    this->context.objects.push_back(std::move(object2));
 
     // Add a few colliders, for testing purpose
     this->context.addCollider(std::make_unique<PlanCollider>(
@@ -17,8 +43,8 @@ DrawArea::DrawArea(int _width, int _height, QWidget *parent)
         worldToView(Vec2{{500.0, 150.0}}), normalize(Vec2{{-1.0, 1.0}})));
     this->context.addCollider(std::make_unique<PlanCollider>(
         worldToView(Vec2{{50.0, 150.0}}), normalize(Vec2{{2.0, 1.0}})));
-    //this->context.addCollider(std::make_unique<SphereCollider>(
-    //    worldToView(Vec2{{450.0, 150.0}}), 50.0f));
+    this->context.addCollider(std::make_unique<SphereCollider>(
+        worldToView(Vec2{{450.0, 150.0}}), 50.0f));
 
 }
 
@@ -29,12 +55,14 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent *event) {
     float y = event->position().y();
 
     float radius = 15;
+    float mass = 1.0;
     Vec2 view_pos {{ x-radius, y-radius }};      // -radius correction for drawing right under the cursor tip
     Vec2 vel {{ 0.0, 0.0 }};
-    float mass = 1.0;
     Particle circle(this->viewToWorld(view_pos), vel, radius, mass);
 
-    this->context.circles.push_back(circle);
+    // As it stands, a double click will create a new object, made of a single particle
+    Object object(generateRandomColor(), circle);
+    this->context.objects.push_back(std::move(object));
 
     QPainter p(this);                       // to be refactored
     this->renderContext(&p, nullptr);
@@ -42,7 +70,6 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 void DrawArea::animate() {
-    this->context.addStaticContactConstraints();
     this->context.updatePhysicalSystem(10);
 
     QPainter p(this);                       // to be refactored
@@ -61,19 +88,22 @@ void DrawArea::renderContext(QPainter *painter, QPaintEvent *event) {
     this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(another_collider));
     Collider* new_collider = context.colliders.at(2).get();
     this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(new_collider));
-    //Collider* sphere_collider = context.colliders.at(3).get();
-    //this->renderSphereCollider(painter, dynamic_cast<SphereCollider*>(sphere_collider));
+    Collider* sphere_collider = context.colliders.at(3).get();
+    this->renderSphereCollider(painter, dynamic_cast<SphereCollider*>(sphere_collider));
 
-    for (Particle circle: this->context.circles) {
-        Vec2 view_pos = this->worldToView(circle.pos);
-        QRectF target(view_pos[0],view_pos[1], circle.radius*2, circle.radius*2);
-        if (circle.isActivated){
-            painter->setPen(Qt::green);
-        } else {
-            painter->setPen(Qt::gray);
+    // Render particles
+    for (const Object& object: context.objects){
+        for (const auto& particle: object.particles) {
+            Vec2 view_pos = this->worldToView(particle->pos);
+            QRectF target(view_pos[0],view_pos[1], particle->radius*2, particle->radius*2);
+            if (particle->isActivated){
+                painter->setPen(Qt::green);
+            } else {
+                painter->setPen(Qt::gray);
+            }
+            painter->setBrush(QBrush(object.color));
+            painter->drawEllipse(target);
         }
-        painter->setBrush(QBrush(Qt::red));
-        painter->drawEllipse(target);
     }
 
     this->update();
@@ -85,6 +115,7 @@ void DrawArea::renderPlanCollider(QPainter *painter, PlanCollider *collider) {
     painter->setPen(QPen(Qt::blue, 3));
     painter->drawLine(view_start[0], view_start[1], view_end[0], view_end[1]);
 
+    // Draw normal
     painter->setPen(QPen(Qt::red));
     painter->drawLine(collider->position[0], this->height - collider->position[1],
                       collider->position[0] + collider->normal[0] * 30, this->height - (collider->position[1] + collider->normal[1] * 30));
