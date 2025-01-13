@@ -25,7 +25,6 @@ set(SHARED_SOURCES
         particle.h
         Vec2.h
         context.h context.cpp
-        tst_testgui.cpp
         collider.h collider.cpp
         constraint.h constraint.cpp
         object.h object.cpp
