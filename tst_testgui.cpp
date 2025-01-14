@@ -5,8 +5,8 @@
 void MyTestGUI::testCase1() {
     // Test the initialization of basic context
 
-    QWidget* fractalDrawing = new QWidget();
-    DrawArea *draw_area = new DrawArea(800, 300, fractalDrawing);
+    QWidget* simulation = new QWidget();
+    DrawArea *draw_area = new DrawArea(800, 300, simulation);
 
     Particle circle(draw_area->viewToWorld({{ 300, 200 }}), {{ 0.0, 0.0 }}, 15, 1.0);
     Object object(Qt::red, circle);
@@ -18,8 +18,8 @@ void MyTestGUI::testCase1() {
 void MyTestGUI::testPlanCollider() {
     // Test PlanCollider by creating a physical situation where the associated constraint should be satisfied
 
-    QWidget* fractalDrawing = new QWidget();
-    DrawArea *draw_area = new DrawArea(800, 300, fractalDrawing);
+    QWidget* simulation = new QWidget();
+    DrawArea *draw_area = new DrawArea(800, 300, simulation);
 
     Particle circle(draw_area->viewToWorld({{ 300, 200 }}), {{ 0.0, 0.0 }}, 15, 1.0);
     Object object(Qt::red, circle);

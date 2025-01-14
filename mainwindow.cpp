@@ -7,9 +7,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QWidget* fractalDrawing = new QWidget();
-    this->draw_area = new DrawArea(800, 300, fractalDrawing);
-    ui->verticalLayout->addWidget(fractalDrawing);
+    QWidget* simulation = new QWidget();
+    this->draw_area = new DrawArea(800, 300, simulation);
+    ui->verticalLayout->addWidget(simulation);
 
     auto timer = new QTimer();
     QObject::connect(timer, &QTimer::timeout, draw_area, &DrawArea::animate);
