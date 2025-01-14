@@ -9,7 +9,8 @@ class MyTestGUI : public QObject {
 
 private slots:
     void testCase1();
-    void testCase2();
+    void testPlanCollider();
+
 };
 
 
