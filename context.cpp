@@ -1,4 +1,5 @@
 #include "context.h"
+#include "drawarea.h"
 #include <stdio.h>
 
 Context::Context() {}
@@ -146,6 +147,4 @@ void Context::updateVelocityAndPosition(float dt) {
 }
 
 void Context::applyFriction(float dt) {
-
 }
-

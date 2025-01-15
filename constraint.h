@@ -20,7 +20,6 @@ public:
         case INEQUALITY:
             return (constraintFunction() >= 0);
         }
-        
     }
 
     inline Vec2 getDelta() const { return delta; }
