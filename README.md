@@ -6,12 +6,14 @@ Ce projet implémente une simulation de type [Position-Based Dynamics](https://m
 ### Fonctionnalités implémentées:
 - visualisation du contexte de la simulation physique.
 - ajout de colliders (classe abstraite `Collider`), qui permettent de représenter un sol ou un mur (`PlanCollider`), ou encore un disque impénétrable (`SphereCollider`).
+- ajout de ces colliders directement depuis l'interface utilisateur:
+  - _ajout d'un_ `PlanCollider`: deux clicks sucessifs permettent de définir un plan via un vecteur directeur. La normale associée est obtenue par une rotation à 90 degrés.
+  - _ajout d'un_ `SphereCollider`: un premier click définit le centre du disque, le second fixe son rayon. 
 - créations d'objets (classe `Object`), qui représentent un agrégat de particules (class `Particle`).
 - application de champs de forces extérieures (par exemple, la gravité) aux objets de la simulation (plus précisement, aux particules qui composent les objets de la simulation).
 - activation ou désactivation de la gravité au moyen d'un bouton.
 - génération et résolution de différentes contraintes (classe abstraite `Constraint`), représentant le contact entre un objet et un collider (`StaticConstraint`), la répulsion entre deux particules appartenant à des objets différents (`DynamicConstraint`), ou encore l'interaction entre deux particules d'un même objet (`LinkConstraint`).
 - visualisation de l'activation de certaines de ces contraintes, pour le debuggage.
-- fonctionnalité permettant à l'utilisateur d'ajouter des plan ou sphere colliders au moyen de boutons. L'orientation des plan colliders dépend de l'ordre des deux clicks. 
 - tests basiques.
 
 ### Fonctionnalités en cours d'implémentation/à implémenter
