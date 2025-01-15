@@ -19,7 +19,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 private slots:
-    void HelloWorld();
+    void SwitchGravity();
 private:
     Ui::MainWindow *ui;
     DrawArea *draw_area;

@@ -3,7 +3,6 @@
 
 #include <QOpenGLWidget>
 #include "context.h"
-#include "collider.h"
 
 
 class DrawArea : public QOpenGLWidget

@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     timer->start(1);
 
 
-    QObject::connect(ui->start_button, &QPushButton::clicked, this, &MainWindow::HelloWorld);
+    QObject::connect(ui->start_button, &QPushButton::clicked, this, &MainWindow::SwitchGravity);
 
 }
 
@@ -25,7 +25,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::HelloWorld()
+void MainWindow::SwitchGravity()
 {
 
     if (this->draw_area->context.isGravityOn) {
