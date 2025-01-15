@@ -7,8 +7,8 @@ void PlanCollider::render(QPainter *painter, const std::function<Vec2(const Vec2
 
     // Draw a polygon on the normal's opposite side, to represent the ground
     // TO BE REFACTORED
-    Vec2 view_start_2 = worldToView(this->position - 1000 * perpendicular(this->normal) - 500 * this->normal);
-    Vec2 view_end_2 = worldToView(this->position + 1000 * perpendicular(this->normal) - 500 * this->normal);
+    Vec2 view_start_2 = worldToView(this->position - 1000 * perpendicular(this->normal) - 1000 * this->normal);
+    Vec2 view_end_2 = worldToView(this->position + 1000 * perpendicular(this->normal) - 1000 * this->normal);
     QPointF points[4] = {
         QPointF(view_start[0], view_start[1]),
         QPointF(view_end[0], view_end[1]),

@@ -18,8 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(ui->start_button, &QPushButton::clicked, this, &MainWindow::SwitchGravity);
 
+    ui->plan_colliders->setCheckable(true);
     QObject::connect(ui->plan_colliders, &QPushButton::clicked, this, &MainWindow::AddingPlanColliders);
 
+    ui->sphere_colliders->setCheckable(true);
     QObject::connect(ui->sphere_colliders, &QPushButton::clicked, this, &MainWindow::AddingSphereColliders);
 
 
@@ -47,9 +49,11 @@ void MainWindow::AddingPlanColliders()
 {
     if (this->draw_area->context.addPlanCollidersOn) {
         this->draw_area->context.addPlanCollidersOn = false;
+        ui->plan_colliders->setChecked(false);
         ui->plan_colliders->setText("Add Plan Colliders");
     } else {
         this->draw_area->context.addPlanCollidersOn = true;
+        ui->plan_colliders->setChecked(true);
         ui->plan_colliders->setText("Stop Adding Plan Colliders");
     }
 }
@@ -59,9 +63,11 @@ void MainWindow::AddingSphereColliders()
 {
     if (this->draw_area->context.addSphereColliderOn) {
         this->draw_area->context.addSphereColliderOn = false;
+        ui->sphere_colliders->setChecked(false);
         ui->sphere_colliders->setText("Add Sphere Colliders");
     } else {
         this->draw_area->context.addSphereColliderOn = true;
+        ui->sphere_colliders->setChecked(true);
         ui->sphere_colliders->setText("Stop Adding Sphere Colliders");
     }
 }
