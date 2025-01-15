@@ -15,8 +15,9 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(timer, &QTimer::timeout, draw_area, &DrawArea::animate);
     timer->start(1);
 
-
     QObject::connect(ui->start_button, &QPushButton::clicked, this, &MainWindow::HelloWorld);
+
+    QObject::connect(ui->plan_colliders, &QPushButton::clicked, this, &MainWindow::AddingPlanColliders);
 
 }
 
@@ -36,4 +37,15 @@ void MainWindow::HelloWorld()
         ui->start_button->setText("Deactivate Gravity");
     }
 
+}
+
+void MainWindow::AddingPlanColliders()
+{
+    if (this->draw_area->context.addPlanCollidersOn) {
+        this->draw_area->context.addPlanCollidersOn = false;
+        ui->plan_colliders->setText("Add Plan Colliders");
+    } else {
+        this->draw_area->context.addPlanCollidersOn = true;
+        ui->plan_colliders->setText("Stop Adding Plan Colliders");
+    }
 }

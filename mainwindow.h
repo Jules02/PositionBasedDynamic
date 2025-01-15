@@ -20,6 +20,7 @@ public:
     ~MainWindow();
 private slots:
     void HelloWorld();
+    void AddingPlanColliders();
 private:
     Ui::MainWindow *ui;
     DrawArea *draw_area;

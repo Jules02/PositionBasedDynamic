@@ -19,7 +19,6 @@ DrawArea::DrawArea(int _width, int _height, QWidget *parent)
         worldToView(Vec2{{50.0, 150.0}}), normalize(Vec2{{2.0, 1.0}})));
     this->context.addCollider(std::make_unique<SphereCollider>(
         worldToView(Vec2{{450.0, 150.0}}), 50.0f));
-
 }
 
 void DrawArea::paintEvent(QPaintEvent *event) {}
@@ -111,4 +110,38 @@ Vec2 DrawArea::worldToView(Vec2 world_pos) {
  */
 Vec2 DrawArea::viewToWorld(Vec2 view_pos) {
     return Vec2{view_pos[0], this->height - view_pos[1]};
+}
+
+
+void DrawNewCollider(Collider* collider){
+}
+
+
+void DrawArea::mousePressEvent(QMouseEvent* event){
+    float first_x;
+    float first_y;
+    float second_x;
+    float second_y;
+    if (this->context.addPlanCollidersOn){
+        if (!this->context.secondClick) {
+            first_x = event->pos().x();
+            first_y = event->pos().y();
+            this->context.secondClick = true;
+        } else {
+            second_x = event->pos().x();
+            second_y = event->pos().y();
+            this->context.secondClick = false;
+        }
+
+        printf("%f;%f\n",first_x,first_y);
+        printf("%f;%f\n",second_x,second_y);
+
+        if ((first_x!= second_x)&&(first_y!=second_y)){
+            Vec2 directeur= Vec2{second_x - first_x, second_x - second_y};
+            Vec2 normal= Vec2{-directeur[1], directeur[0]};
+            Vec2 position= Vec2{first_x,first_y};
+            std::unique_ptr<PlanCollider> new_collider= std::make_unique<PlanCollider> (worldToView(position), worldToView(normal));
+            this->context.addCollider(std::move(new_collider));
+        }
+    }
 }

@@ -13,6 +13,8 @@ public:
     DrawArea(int width, int height, QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void DrawNewCollider(Collider* collider);
 
     Context context;
     void renderContext(QPainter *painter, QPaintEvent *event);

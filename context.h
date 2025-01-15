@@ -3,6 +3,7 @@
 
 #include "collider.h"
 #include "constraint.h"
+#include <QMouseEvent>
 
 class Context
 {
@@ -10,14 +11,18 @@ public:
     Context();
     std::vector<Particle> circles;
     bool isGravityOn;
+    bool addPlanCollidersOn=false;
+    bool secondClick;
 
     std::vector<std::unique_ptr<Collider>> colliders;
     std::vector<std::unique_ptr<Constraint>> activeConstraints;
 
     inline void addCollider(std::unique_ptr<Collider> collider) { colliders.push_back(std::move(collider)); }
+
     inline void addConstraint(std::unique_ptr<Constraint> constraint) { activeConstraints.push_back(std::move(constraint)); }
 
     void updatePhysicalSystem(float dt);
+
 
 private:
     void applyExternalForce(float dt);
