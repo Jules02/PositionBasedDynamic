@@ -80,53 +80,22 @@ void DrawArea::animate() {
 void DrawArea::renderContext(QPainter *painter, QPaintEvent *event) {
     painter->fillRect(this->rect(), Qt::black);    // clear canva by painting the entire background
 
-    // TEMPORARY !
-    // Render test colliders
-    Collider* collider = context.colliders.at(0).get();
-    this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(collider));
-    Collider* another_collider = context.colliders.at(1).get();
-    this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(another_collider));
-    Collider* new_collider = context.colliders.at(2).get();
-    this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(new_collider));
-    Collider* sphere_collider = context.colliders.at(3).get();
-    this->renderSphereCollider(painter, dynamic_cast<SphereCollider*>(sphere_collider));
-
-    // Render particles
-    for (const Object& object: context.objects){
-        for (const auto& particle: object.particles) {
-            Vec2 view_pos = this->worldToView(particle->pos);
-            QRectF target(view_pos[0],view_pos[1], particle->radius*2, particle->radius*2);
-            if (particle->isActivated){
-                painter->setPen(Qt::green);
-            } else {
-                painter->setPen(Qt::gray);
-            }
-            painter->setBrush(QBrush(object.color));
-            painter->drawEllipse(target);
-        }
-    }
+    renderColliders(painter);
+    renderObjects(painter);
 
     this->update();
 }
 
-void DrawArea::renderPlanCollider(QPainter *painter, PlanCollider *collider) {
-    Vec2 view_start = worldToView(collider->position - 1000 * perpendicular(collider->normal));
-    Vec2 view_end = worldToView(collider->position + 1000 * perpendicular(collider->normal));
-    painter->setPen(QPen(Qt::blue, 3));
-    painter->drawLine(view_start[0], view_start[1], view_end[0], view_end[1]);
-
-    // Draw normal
-    painter->setPen(QPen(Qt::red));
-    painter->drawLine(collider->position[0], this->height - collider->position[1],
-                      collider->position[0] + collider->normal[0] * 30, this->height - (collider->position[1] + collider->normal[1] * 30));
+void DrawArea::renderColliders(QPainter *painter) {
+    for (const auto& collider: context.colliders) {
+        collider->render(painter, [this](const Vec2& pos) { return worldToView(pos); }); // Passing a function pointer to worldToView is probably not the best solution. These utilities could be defined somewhere else.
+    }
 }
 
-void DrawArea::renderSphereCollider(QPainter *painter, SphereCollider *collider) {
-    Vec2 view_center = worldToView(collider->center);
-
-    QRectF target(view_center[0]-collider->radius,view_center[1]-collider->radius, collider->radius*2, collider->radius*2);
-    painter->setPen(QPen(Qt::blue, 3));
-    painter->drawEllipse(target);
+void DrawArea::renderObjects(QPainter *painter) {
+    for (Object& object: context.objects){
+        object.render(painter, [this](const Vec2& pos) { return worldToView(pos); });   // Same comment as with renderColliders
+    }
 }
 
 /**
