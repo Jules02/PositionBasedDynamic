@@ -57,11 +57,12 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent *event) {
 
     float radius = 15;
     float mass = 1.0;
-    Vec2 view_pos {{ x-radius, y-radius }};      // -radius correction for drawing right under the cursor tip
+    Vec2 view_pos {{ x-radius-1, y-radius }};      // -radius correction for drawing right under the cursor tip
     Vec2 vel {{ 0.0, 0.0 }};
     Particle circle(this->viewToWorld(view_pos), vel, radius, mass);
 
     // As it stands, a double click will create a new object, made of a single particle
+    // In the future, it would be nice to let the user create an object made of multiple particles
     Object object(generateRandomColor(), circle);
     this->context.objects.push_back(std::move(object));
 
@@ -91,13 +92,13 @@ void DrawArea::renderContext(QPainter *painter, QPaintEvent *event) {
 
 void DrawArea::renderColliders(QPainter *painter) {
     for (const auto& collider: context.colliders) {
-        collider->render(painter, [this](const Vec2& pos) { return worldToView(pos); }); // Passing a function pointer to worldToView is probably not the best solution. These utilities could be defined somewhere else.
+        collider->render(painter, [this](const Vec2& pos) { return worldToView(pos); }); // passing a function pointer to worldToView is probably not the best solution. These utilities could be defined somewhere else.
     }
 }
 
 void DrawArea::renderObjects(QPainter *painter) {
     for (Object& object: context.objects){
-        object.render(painter, [this](const Vec2& pos) { return worldToView(pos); });   // Same comment as with renderColliders
+        object.render(painter, [this](const Vec2& pos) { return worldToView(pos); });   // same comment as with renderColliders
     }
 }
 

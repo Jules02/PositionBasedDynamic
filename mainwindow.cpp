@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     QWidget* simulation = new QWidget();
+    simulation->setCursor(Qt::CrossCursor);
     this->draw_area = new DrawArea(800, 500, simulation);
     ui->verticalLayout->addWidget(simulation);
 

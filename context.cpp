@@ -1,5 +1,4 @@
 #include "context.h"
-#include "drawarea.h"
 #include <stdio.h>
 
 Context::Context() {}
@@ -65,14 +64,15 @@ void Context::updateNeighbors() {
 }
 
 void Context::addFluidConstraints() {
-    /*
-    for (Particle& particle_i : circles) {
-        auto constraint = std::make_unique<FluidConstraint>(&particle_i);
-        if (constraint->isSatisfied()) {
-            addConstraint(std::move(constraint));
+    for (Object& object: objects) {
+        for (auto& particle_i : object.particles) {
+
+            auto constraint = std::make_unique<FluidConstraint>(particle_i.get());
+            if (constraint->isSatisfied()) {
+                addConstraint(std::move(constraint));
+            }
         }
     }
-    */
 }
 
 void Context::addDynamicContactConstraints() {
@@ -104,10 +104,6 @@ void Context::addDynamicContactConstraints() {
 }
 
 void Context::addStaticContactConstraints() {
-
-    // GENERATE CONSTRAINTS
-
-    // Check for contact between each collider/particle pair
     for (auto& collider : colliders) {
 
         for (Object& object: objects){
