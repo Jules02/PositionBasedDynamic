@@ -7,15 +7,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QWidget* fractalDrawing = new QWidget();
-    this->draw_area = new DrawArea(800, 300, fractalDrawing);
-    ui->verticalLayout->addWidget(fractalDrawing);
+    QWidget* simulation = new QWidget();
+    this->draw_area = new DrawArea(800, 500, simulation);
+    ui->verticalLayout->addWidget(simulation);
 
     auto timer = new QTimer();
     QObject::connect(timer, &QTimer::timeout, draw_area, &DrawArea::animate);
     timer->start(1);
 
-    QObject::connect(ui->start_button, &QPushButton::clicked, this, &MainWindow::HelloWorld);
+    QObject::connect(ui->start_button, &QPushButton::clicked, this, &MainWindow::SwitchGravity);
 
     QObject::connect(ui->plan_colliders, &QPushButton::clicked, this, &MainWindow::AddingPlanColliders);
 
@@ -26,7 +26,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::HelloWorld()
+void MainWindow::SwitchGravity()
 {
 
     if (this->draw_area->context.isGravityOn) {

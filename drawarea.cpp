@@ -2,23 +2,51 @@
 #include "Vec2.h"
 #include "collider.h"
 #include "particle.h"
+#include "object.h"
 #include <QPainter>
 #include <QMouseEvent>
+
+QColor generateRandomColor() {
+    int red = std::rand() % 256;
+    int green = std::rand() % 256;
+    int blue = std::rand() % 256;
+
+    return QColor(red, green, blue);
+}
 
 DrawArea::DrawArea(int _width, int _height, QWidget *parent)
     : width(_width), height(_height), QOpenGLWidget{parent}
 {
+    std::srand(std::time(nullptr));
+
     this->setFixedSize(this->width, this->height);
+
+    // Add two first objects
+    float radius = 15;
+    float mass = 1.0;
+    Particle circle1(this->viewToWorld({{ 360, 40 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle2(this->viewToWorld({{ 360, 70 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle3(this->viewToWorld({{ 390, 40 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle4(this->viewToWorld({{ 390, 70 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Object object(generateRandomColor(), circle1, circle2, circle3, circle4);
+    this->context.objects.push_back(std::move(object));
+    Particle circle5(this->viewToWorld({{ 165, 65 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle6(this->viewToWorld({{ 160, 35 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle7(this->viewToWorld({{ 190, 35 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Object object2(generateRandomColor(), circle5, circle6, circle7);
+    this->context.objects.push_back(std::move(object2));
 
     // Add a few colliders, for testing purpose
     this->context.addCollider(std::make_unique<PlanCollider>(
-        worldToView(Vec2{{30.0, 250.0}}), normalize(Vec2{{0.0, 1.0}})));
+        worldToView(Vec2{{30.0, 400.0}}), normalize(Vec2{{0.0, 1.0}})));
     this->context.addCollider(std::make_unique<PlanCollider>(
-        worldToView(Vec2{{500.0, 150.0}}), normalize(Vec2{{-1.0, 1.0}})));
+        worldToView(Vec2{{600.0, 150.0}}), normalize(Vec2{{-1.0, 1.0}})));
     this->context.addCollider(std::make_unique<PlanCollider>(
-        worldToView(Vec2{{50.0, 150.0}}), normalize(Vec2{{2.0, 1.0}})));
+        worldToView(Vec2{{50.0, 150.0}}), normalize(Vec2{{2.5, 1.0}})));
     this->context.addCollider(std::make_unique<SphereCollider>(
-        worldToView(Vec2{{450.0, 150.0}}), 50.0f));
+        worldToView(Vec2{{440.0, 170.0}}), 50.0f));
+    this->context.addCollider(std::make_unique<SphereCollider>(
+        worldToView(Vec2{{25.0, 200.0}}), 100.0f));
 }
 
 void DrawArea::paintEvent(QPaintEvent *event) {}
@@ -28,12 +56,14 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent *event) {
     float y = event->position().y();
 
     float radius = 15;
+    float mass = 1.0;
     Vec2 view_pos {{ x-radius, y-radius }};      // -radius correction for drawing right under the cursor tip
     Vec2 vel {{ 0.0, 0.0 }};
-    float mass = 1.0;
     Particle circle(this->viewToWorld(view_pos), vel, radius, mass);
 
-    this->context.circles.push_back(circle);
+    // As it stands, a double click will create a new object, made of a single particle
+    Object object(generateRandomColor(), circle);
+    this->context.objects.push_back(std::move(object));
 
     QPainter p(this);                       // to be refactored
     this->renderContext(&p, nullptr);
@@ -49,52 +79,26 @@ void DrawArea::animate() {
 }
 
 void DrawArea::renderContext(QPainter *painter, QPaintEvent *event) {
-    painter->fillRect(this->rect(), Qt::black);    // clear canva by painting the entire background
+    painter->fillRect(this->rect(), QColor(215, 214, 213));    // clear canva by painting the entire background
+    painter->setPen(QPen(QColor(134, 132, 130)));
+    painter->setBrush(QBrush(QColor(134, 132, 130)));
 
-    // TEMPORARY !
-    // Render test colliders
-    Collider* collider = context.colliders.at(0).get();
-    this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(collider));
-    Collider* another_collider = context.colliders.at(1).get();
-    this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(another_collider));
-    Collider* new_collider = context.colliders.at(2).get();
-    this->renderPlanCollider(painter, dynamic_cast<PlanCollider*>(new_collider));
-    Collider* sphere_collider = context.colliders.at(3).get();
-    this->renderSphereCollider(painter, dynamic_cast<SphereCollider*>(sphere_collider));
-
-    for (Particle circle: this->context.circles) {
-        Vec2 view_pos = this->worldToView(circle.pos);
-        QRectF target(view_pos[0],view_pos[1], circle.radius*2, circle.radius*2);
-        if (circle.isActivated){
-            painter->setPen(Qt::green);
-        } else {
-            painter->setPen(Qt::gray);
-        }
-        painter->setBrush(QBrush(Qt::red));
-        painter->drawEllipse(target);
-    }
+    renderColliders(painter);
+    renderObjects(painter);
 
     this->update();
 }
 
-void DrawArea::renderPlanCollider(QPainter *painter, PlanCollider *collider) {
-    Vec2 view_start = worldToView(collider->position - 1000 * perpendicular(collider->normal));
-    Vec2 view_end = worldToView(collider->position + 1000 * perpendicular(collider->normal));
-    painter->setPen(QPen(Qt::blue, 3));
-    painter->drawLine(view_start[0], view_start[1], view_end[0], view_end[1]);
-
-    // Draw normal
-    painter->setPen(QPen(Qt::red));
-    painter->drawLine(collider->position[0], this->height - collider->position[1],
-                      collider->position[0] + collider->normal[0] * 30, this->height - (collider->position[1] + collider->normal[1] * 30));
+void DrawArea::renderColliders(QPainter *painter) {
+    for (const auto& collider: context.colliders) {
+        collider->render(painter, [this](const Vec2& pos) { return worldToView(pos); }); // Passing a function pointer to worldToView is probably not the best solution. These utilities could be defined somewhere else.
+    }
 }
 
-void DrawArea::renderSphereCollider(QPainter *painter, SphereCollider *collider) {
-    Vec2 view_center = worldToView(collider->center);
-
-    QRectF target(view_center[0]-collider->radius,view_center[1]-collider->radius, collider->radius*2, collider->radius*2);
-    painter->setPen(QPen(Qt::blue, 3));
-    painter->drawEllipse(target);
+void DrawArea::renderObjects(QPainter *painter) {
+    for (Object& object: context.objects){
+        object.render(painter, [this](const Vec2& pos) { return worldToView(pos); });   // Same comment as with renderColliders
+    }
 }
 
 /**

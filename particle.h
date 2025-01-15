@@ -10,6 +10,8 @@ struct Particle
     Vec2 velocity;
     Vec2 appliedForces;
     Vec2 delta;
+    std::vector<Particle*> neighbors;
+    float lambda;
     float radius;
     float mass;
     bool isActivated;
