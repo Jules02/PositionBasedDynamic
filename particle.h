@@ -2,6 +2,7 @@
 #define PARTICLE_H
 
 #include "Vec2.h"
+#include <vector>
 
 struct Particle
 {

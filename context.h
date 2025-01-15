@@ -13,9 +13,9 @@ public:
 
     std::vector<Object> objects;
 
-    bool isGravityOn;
+    bool isGravityOn=false;
     bool addPlanCollidersOn=false;
-    bool secondClick;
+    std::optional<Vec2> click;
 
     std::vector<std::unique_ptr<Collider>> colliders;
     std::vector<std::unique_ptr<Constraint>> activeConstraints;

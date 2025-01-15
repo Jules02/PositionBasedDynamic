@@ -122,30 +122,20 @@ void DrawNewCollider(Collider* collider){
 
 
 void DrawArea::mousePressEvent(QMouseEvent* event){
-    float first_x;
-    float first_y;
-    float second_x;
-    float second_y;
     if (this->context.addPlanCollidersOn){
-        if (!this->context.secondClick) {
-            first_x = event->pos().x();
-            first_y = event->pos().y();
-            this->context.secondClick = true;
-        } else {
-            second_x = event->pos().x();
-            second_y = event->pos().y();
-            this->context.secondClick = false;
+        if (!(this->context.click.has_value())) {
+            this->context.click=Vec2{static_cast<float>(event->pos().x()), static_cast<float>(event->pos().y())};
         }
-
-        printf("%f;%f\n",first_x,first_y);
-        printf("%f;%f\n",second_x,second_y);
-
-        if ((first_x!= second_x)&&(first_y!=second_y)){
-            Vec2 directeur= Vec2{second_x - first_x, second_x - second_y};
-            Vec2 normal= Vec2{-directeur[1], directeur[0]};
-            Vec2 position= Vec2{first_x,first_y};
-            std::unique_ptr<PlanCollider> new_collider= std::make_unique<PlanCollider> (worldToView(position), worldToView(normal));
+        else {
+            Vec2 first_click= this->context.click.value();
+            Vec2 second_click=Vec2{static_cast<float>(event->pos().x()), static_cast<float>(event->pos().y())};
+            first_click= worldToView(first_click);
+            second_click= worldToView(second_click);
+            this->context.click= second_click - first_click; //directing vector in the optional vector
+            Vec2 normal= perpendicular(this->context.click.value()); // transforming it in a normal vector to use the addcolliders function
+            std::unique_ptr<PlanCollider> new_collider= std::make_unique<PlanCollider> (first_click, normal);
             this->context.addCollider(std::move(new_collider));
+            this->context.click.reset();
         }
     }
 }
