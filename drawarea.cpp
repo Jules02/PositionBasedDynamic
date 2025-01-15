@@ -122,7 +122,6 @@ void DrawNewCollider(Collider* collider){
 
 
 void DrawArea::mousePressEvent(QMouseEvent* event){
-    if (this->context.addPlanCollidersOn){
         if (!(this->context.click.has_value())) {
             this->context.click=Vec2{static_cast<float>(event->pos().x()), static_cast<float>(event->pos().y())};
         }
@@ -132,10 +131,18 @@ void DrawArea::mousePressEvent(QMouseEvent* event){
             first_click= worldToView(first_click);
             second_click= worldToView(second_click);
             this->context.click= second_click - first_click; //directing vector in the optional vector
-            Vec2 normal= perpendicular(this->context.click.value()); // transforming it in a normal vector to use the addcolliders function
-            std::unique_ptr<PlanCollider> new_collider= std::make_unique<PlanCollider> (first_click, normal);
-            this->context.addCollider(std::move(new_collider));
+
+            if (this->context.addPlanCollidersOn){
+                Vec2 normal= perpendicular(this->context.click.value()); // transforming it in a normal vector to use the addcolliders function
+                std::unique_ptr<PlanCollider> new_collider= std::make_unique<PlanCollider> (first_click, normal);
+                this->context.addCollider(std::move(new_collider));
+            }
+
+            else if (this->context.addSphereColliderOn){
+                float norm= squaredLength(this->context.click.value());
+                std::unique_ptr<SphereCollider> new_collider= std::make_unique<SphereCollider> (first_click,sqrt(norm));
+                this->context.addCollider(std::move(new_collider));
+            }
             this->context.click.reset();
         }
-    }
 }

@@ -21,6 +21,7 @@ public:
 private slots:
     void SwitchGravity();
     void AddingPlanColliders();
+    void AddingSphereColliders();
 private:
     Ui::MainWindow *ui;
     DrawArea *draw_area;

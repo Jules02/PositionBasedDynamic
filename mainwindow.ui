@@ -29,6 +29,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="sphere_colliders">
+      <property name="text">
+       <string>Add Sphere Colliders</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QPushButton" name="plan_colliders">
       <property name="text">
        <string>Add Plan Colliders</string>
