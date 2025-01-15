@@ -24,27 +24,29 @@ DrawArea::DrawArea(int _width, int _height, QWidget *parent)
     // Add two first objects
     float radius = 15;
     float mass = 1.0;
-    Particle circle1(this->viewToWorld({{ 350, 30 }}), {{ 0.0, 0.0 }}, radius, mass);
-    Particle circle2(this->viewToWorld({{ 350, 70 }}), {{ 0.0, 0.0 }}, radius, mass);
-    Particle circle3(this->viewToWorld({{ 390, 30 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle1(this->viewToWorld({{ 360, 40 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle2(this->viewToWorld({{ 360, 70 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle3(this->viewToWorld({{ 390, 40 }}), {{ 0.0, 0.0 }}, radius, mass);
     Particle circle4(this->viewToWorld({{ 390, 70 }}), {{ 0.0, 0.0 }}, radius, mass);
     Object object(generateRandomColor(), circle1, circle2, circle3, circle4);
     this->context.objects.push_back(std::move(object));
-    Particle circle5(this->viewToWorld({{ 160, 65 }}), {{ 0.0, 0.0 }}, radius, mass);
-    Particle circle6(this->viewToWorld({{ 155, 35 }}), {{ 0.0, 0.0 }}, radius, mass);
-    Particle circle7(this->viewToWorld({{ 185, 35 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle5(this->viewToWorld({{ 165, 65 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle6(this->viewToWorld({{ 160, 35 }}), {{ 0.0, 0.0 }}, radius, mass);
+    Particle circle7(this->viewToWorld({{ 190, 35 }}), {{ 0.0, 0.0 }}, radius, mass);
     Object object2(generateRandomColor(), circle5, circle6, circle7);
     this->context.objects.push_back(std::move(object2));
 
     // Add a few colliders, for testing purpose
     this->context.addCollider(std::make_unique<PlanCollider>(
-        worldToView(Vec2{{30.0, 250.0}}), normalize(Vec2{{0.0, 1.0}})));
+        worldToView(Vec2{{30.0, 400.0}}), normalize(Vec2{{0.0, 1.0}})));
     this->context.addCollider(std::make_unique<PlanCollider>(
-        worldToView(Vec2{{500.0, 150.0}}), normalize(Vec2{{-1.0, 1.0}})));
+        worldToView(Vec2{{600.0, 150.0}}), normalize(Vec2{{-1.0, 1.0}})));
     this->context.addCollider(std::make_unique<PlanCollider>(
-        worldToView(Vec2{{50.0, 150.0}}), normalize(Vec2{{2.0, 1.0}})));
+        worldToView(Vec2{{50.0, 150.0}}), normalize(Vec2{{2.5, 1.0}})));
     this->context.addCollider(std::make_unique<SphereCollider>(
-        worldToView(Vec2{{450.0, 150.0}}), 50.0f));
+        worldToView(Vec2{{440.0, 170.0}}), 50.0f));
+    this->context.addCollider(std::make_unique<SphereCollider>(
+        worldToView(Vec2{{25.0, 200.0}}), 100.0f));
 
 }
 
@@ -78,7 +80,9 @@ void DrawArea::animate() {
 }
 
 void DrawArea::renderContext(QPainter *painter, QPaintEvent *event) {
-    painter->fillRect(this->rect(), Qt::black);    // clear canva by painting the entire background
+    painter->fillRect(this->rect(), QColor(215, 214, 213));    // clear canva by painting the entire background
+    painter->setPen(QPen(QColor(134, 132, 130)));
+    painter->setBrush(QBrush(QColor(134, 132, 130)));
 
     renderColliders(painter);
     renderObjects(painter);

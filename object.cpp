@@ -9,7 +9,10 @@ void Object::render(QPainter *painter, const std::function<Vec2(const Vec2&)>& w
         } else {
             painter->setPen(Qt::gray);
         }
-        painter->setBrush(QBrush(this->color));
+        QColor particle_color = this->color;
+        // TO BE REFINED
+        //particle_color.setAlphaF(particle->mass/this->mass);
+        painter->setBrush(QBrush(particle_color));
         painter->drawEllipse(target);
     }
 }

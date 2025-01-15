@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     QWidget* simulation = new QWidget();
-    this->draw_area = new DrawArea(800, 300, simulation);
+    this->draw_area = new DrawArea(800, 500, simulation);
     ui->verticalLayout->addWidget(simulation);
 
     auto timer = new QTimer();
