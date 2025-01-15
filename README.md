@@ -11,6 +11,7 @@ Ce projet implémente une simulation de type [Position-Based Dynamics](https://m
 - activation ou désactivation de la gravité au moyen d'un bouton.
 - génération et résolution de différentes contraintes (classe abstraite `Constraint`), représentant le contact entre un objet et un collider (`StaticConstraint`), la répulsion entre deux particules appartenant à des objets différents (`DynamicConstraint`), ou encore l'interaction entre deux particules d'un même objet (`LinkConstraint`).
 - visualisation de l'activation de certaines de ces contraintes, pour le debuggage.
+- fonctionnalité permettant à l'utilisateur d'ajouter des plan ou sphere colliders au moyen de boutons. L'orientation des plan colliders dépend de l'ordre des deux clicks. 
 - tests basiques.
 
 ### Fonctionnalités en cours d'implémentation/à implémenter
